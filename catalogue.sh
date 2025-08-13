@@ -59,6 +59,14 @@ unzip /tmp/catalogue.zip &>$LOGFILE
 VALIDATE $? "Unzipping Code"
 
 npm install &>$LOGFILE
-VALIDATE $? "Installing Dependencies"
+VALIDATE $? "Installing nodejs Dependencies"
 
-cp /home/ec2-user/script/backend.service /etc/systemd/system/backend.service &>$LOGFILE
+cp /home/ec2-user/script/catalogue.service /etc/systemd/system/catalogue.service &>$LOGFILE
+VALIDATE $? "Copied Catalogue service"
+
+systemctl enable catalogue &>$LOGFILE
+VALIDATE $? "Enabling catalogue service"
+
+systemctl start catalogue &>$LOGFILE
+VALIDATE $? "Starting catalogue service"
+
