@@ -28,16 +28,12 @@ else
     echo " You're super user "
 fi
 
-# mysql_secure_installation --set-root-pass ExpenseApp@1 &>>$LOGFILE
-# VALIDATE $? "Setting up root password"
+dnf module disable nodejs -y &>$LOGFILE
+VALIDATE $? "Disabling nodejs"
 
-#Below code will be useful for idempotent nature
+dnf module enable nodejs:20 -y &>$LOGFILE
+VALIDATE $? "Enabling nodejs:20 version"
 
-mysql -h < > -uroot -p${mysql_root_password} -e 'show databases;' &>>$LOGFILE
-if [ $? -ne 0 ]
-then
-    mysql_secure_installation --set-root-pass ${mysql_root_password} &>>$LOGFILE
-    VALIDATE $? "MySQL Root password Setup"
-else
-    echo -e "MySQL Root password is already setup...$Y SKIPPING $N"
-fi
+dnf install nodejs -y &>$LOGFILE
+VALIDATE $? "Installing nodejs"
+
