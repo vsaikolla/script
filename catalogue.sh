@@ -37,3 +37,28 @@ VALIDATE $? "Enabling nodejs:20 version"
 dnf install nodejs -y &>$LOGFILE
 VALIDATE $? "Installing nodejs"
 
+id Roboshop &>$LOGFILE
+if [ $? -ne 0 ]
+then
+    useradd Roboshop &>$LOGFILE
+    VALIDATE $? "Creating Roboshop user"
+else
+    echo -e "Roboshop user already created...$Y SKIPPING $N"
+fi
+
+mkdir -p /app &>$LOGFILE
+VALIDATE $? "Creating app directory"
+
+curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>$LOGFILE
+VALIDATE $? "Downloading Catalogue code"
+
+cd /app &>$LOGFILE
+VALIDATE $? "Moving to cd directory"
+
+unzip /tmp/catalogue.zip &>$LOGFILE
+VALIDATE $? "Unzipping Code"
+
+npm install &>$LOGFILE
+VALIDATE $? "Installing Dependencies"
+
+cp /home/ec2-user/script/backend.service /etc/systemd/system/backend.service &>$LOGFILE
