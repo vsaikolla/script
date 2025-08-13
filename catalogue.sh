@@ -42,7 +42,7 @@ if [ $? -ne 0 ]
 then
     useradd Roboshop &>$LOGFILE
     VALIDATE $? "Creating Roboshop user"
-    
+
     mkdir -p /app &>$LOGFILE
     VALIDATE $? "Creating app directory"
 
@@ -64,6 +64,11 @@ then
 
     systemctl start catalogue &>$LOGFILE
     VALIDATE $? "Starting catalogue service"
+
+    dnf install mongodb-mongosh -y &>$LOGFILE
+    VALIDATE $? "Installing mongodb client"
+
+    mongosh --host mongodb.sainath.online </app/db/master-data.js
 else
     echo -e "Roboshop user already created...$Y SKIPPING $N"
 fi
