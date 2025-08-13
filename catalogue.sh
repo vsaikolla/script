@@ -42,29 +42,30 @@ if [ $? -ne 0 ]
 then
     useradd Roboshop &>$LOGFILE
     VALIDATE $? "Creating Roboshop user"
+    
+    mkdir -p /app &>$LOGFILE
+    VALIDATE $? "Creating app directory"
+
+    curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>$LOGFILE
+    VALIDATE $? "Downloading Catalogue code"
+
+    cd /app &>$LOGFILE
+    unzip /tmp/catalogue.zip &>$LOGFILE
+    VALIDATE $? "Unzipping Code"
+
+    npm install &>$LOGFILE
+    VALIDATE $? "Installing nodejs Dependencies"
+
+    # cp /home/ec2-user/script/catalogue.service /etc/systemd/system/catalogue.service &>$LOGFILE
+    # VALIDATE $? "Copied Catalogue service"
+
+    systemctl enable catalogue &>$LOGFILE
+    VALIDATE $? "Enabling catalogue service"
+
+    systemctl start catalogue &>$LOGFILE
+    VALIDATE $? "Starting catalogue service"
 else
     echo -e "Roboshop user already created...$Y SKIPPING $N"
 fi
 
-mkdir -p /app &>$LOGFILE
-VALIDATE $? "Creating app directory"
-
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>$LOGFILE
-VALIDATE $? "Downloading Catalogue code"
-
-cd /app &>$LOGFILE
-unzip /tmp/catalogue.zip &>$LOGFILE
-VALIDATE $? "Unzipping Code"
-
-npm install &>$LOGFILE
-VALIDATE $? "Installing nodejs Dependencies"
-
-# cp /home/ec2-user/script/catalogue.service /etc/systemd/system/catalogue.service &>$LOGFILE
-# VALIDATE $? "Copied Catalogue service"
-
-systemctl enable catalogue &>$LOGFILE
-VALIDATE $? "Enabling catalogue service"
-
-systemctl start catalogue &>$LOGFILE
-VALIDATE $? "Starting catalogue service"
 
