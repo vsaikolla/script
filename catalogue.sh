@@ -40,37 +40,45 @@ VALIDATE $? "Installing nodejs"
 id Roboshop &>$LOGFILE
 if [ $? -ne 0 ]
 then
-    useradd Roboshop &>$LOGFILE
-    VALIDATE $? "Creating Roboshop user"
-
-    mkdir -p /app &>$LOGFILE
-    VALIDATE $? "Creating app directory"
-
-    curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>$LOGFILE
-    VALIDATE $? "Downloading Catalogue code"
-
-    cd /app &>$LOGFILE
-    unzip /tmp/catalogue.zip &>$LOGFILE
-    VALIDATE $? "Unzipping Code"
-
-    npm install &>$LOGFILE
-    VALIDATE $? "Installing nodejs Dependencies"
-
-    # cp /home/ec2-user/script/catalogue.service /etc/systemd/system/catalogue.service &>$LOGFILE
-    # VALIDATE $? "Copied Catalogue service"
-
-    systemctl enable catalogue &>$LOGFILE
-    VALIDATE $? "Enabling catalogue service"
-
-    systemctl start catalogue &>$LOGFILE
-    VALIDATE $? "Starting catalogue service"
-
-    dnf install mongodb-mongosh -y &>$LOGFILE
-    VALIDATE $? "Installing mongodb client"
-
-    mongosh --host mongodb.sainath.online </app/db/master-data.js
+    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$LOG_FILE
+    VALIDATE $? "Creating roboshop system user"
 else
     echo -e "Roboshop user already created...$Y SKIPPING $N"
 fi
 
+mkdir -p /app &>$LOGFILE
+VALIDATE $? "Creating app directory"
+
+curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>$LOGFILE
+VALIDATE $? "Downloading Catalogue code"
+
+cd /app &>$LOGFILE
+unzip /tmp/catalogue.zip &>$LOGFILE
+VALIDATE $? "Unzipping Code"
+
+npm install &>$LOGFILE
+VALIDATE $? "Installing nodejs Dependencies"
+
+cp /home/ec2-user/script/catalogue.service /etc/systemd/system/catalogue.service &>$LOGFILE
+VALIDATE $? "Copied Catalogue service"
+
+systemctl enable catalogue &>$LOGFILE
+VALIDATE $? "Enabling catalogue service"
+
+systemctl start catalogue &>$LOGFILE
+VALIDATE $? "Starting catalogue service"
+
+cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo 
+
+dnf install mongodb-mongosh -y &>$LOGFILE
+VALIDATE $? "Installing mongodb client"
+
+STATUS=$(mongosh --host mongodb.sainath.online --eval 'db.getMongo().getDBNames().indexOf("catalogue")')
+if [ $STATUS -lt 0 ]
+then
+    mongosh --host mongodb.sainath.online </app/db/master-data.js &>>$LOG_FILE
+    VALIDATE $? "Loading data into MongoDB"
+else
+    echo -e "Data is already loaded ... $Y SKIPPING $N"
+fi
 
