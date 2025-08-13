@@ -10,10 +10,6 @@ G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
 
-echo "Please enter DB password:"
-read -s mysql_root_password
-
-
 VALIDATE(){
     if [ $1 -ne 0 ]
     then
@@ -32,19 +28,7 @@ else
     echo " You're super user "
 fi
 
-dnf install mysql-server -y &>$LOGFILE
-VALIDATE $? "Installing MYSQL Server"
-
-systemctl enable mysqld &>$LOGFILE
-VALIDATE $? "Enabling MYSQL Server"
-
-systemctl start mysqld &>$LOGFILE
-VALIDATE $? "Starting MYSQL Server"
-
-mysql_secure_installation --set-root-pass RoboShop@1 &>$LOGFILE
-VALIDATE $? "Setting up Root Password"
-
-# mysql_secure_installation --set-root-pass ${mysql_root_password} &>>$LOGFILE
+# mysql_secure_installation --set-root-pass ExpenseApp@1 &>>$LOGFILE
 # VALIDATE $? "Setting up root password"
 
 #Below code will be useful for idempotent nature
